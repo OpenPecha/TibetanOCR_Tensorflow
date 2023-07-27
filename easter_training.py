@@ -2,7 +2,7 @@ import sys
 import logging
 import os.path
 import argparse
-from Lib.Modules import OCRDataset, OCRTrainer
+from src.Modules import OCRDataset, OCRTrainer
 
 """
 run the pipeline with e.g.: 

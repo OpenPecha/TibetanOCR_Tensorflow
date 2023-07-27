@@ -168,7 +168,7 @@ cython_debug/
 Data/
 
 # exclude Checkpoints dir
-/Checkpoints/
+Checkpoints/
 
 # exlclude PyCharm project dir
 .idea/

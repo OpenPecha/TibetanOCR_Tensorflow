@@ -1,10 +1,9 @@
 import sys
 import json
-import logging
 import os.path
 import argparse
-from Lib.Utils import get_charset
-from Lib.Modules import OCRDataset, OCRTrainer
+from src.Utils import get_charset
+from src.Modules import OCRDataset, OCRTrainer
 
 """
 run the pipeline with e.g.: python easter_fine_tune.py --dataset_dir "Data/KhyentseWangpo" --config "Models/LhasaKanjur/model_config.json" --epochs 10
@@ -17,9 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=str, required=True)
     parser.add_argument("--batch_size", type=int, required=False, default=32)
     parser.add_argument("--epochs", type=int, required=False, default=30)
-    parser.add_argument(
-        "--model_name", type=str, required=False, default="fine_tuned_model"
-    )
+    parser.add_argument("--model_name", type=str, required=False, default="fine_tuned_model")
 
     args = parser.parse_args()
 
