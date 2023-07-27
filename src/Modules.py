@@ -43,6 +43,7 @@ class OCRDataset:
         train_test_split: float = 0.8,
         batch_size: int = 32,
         charset: Optional[List[str]] = None,
+        output_dir: Optional[str] = None
     ) -> None:
         self._directory = directory
         self._ds_images = []
@@ -55,11 +56,7 @@ class OCRDataset:
         self.batch_size = batch_size
         self._train_test_split = train_test_split
         self._time_stamp = datetime.now()
-        self.output_dir = os.path.join(
-            self._directory,
-            "Output",
-            f"{self._time_stamp.year}_{self._time_stamp.month}_{self._time_stamp.day}_{self._time_stamp.hour}_{self._time_stamp.minute}",
-        )
+        self.output_dir = self.get_output_dir(output_dir)
 
         self._init()
 
@@ -94,6 +91,14 @@ class OCRDataset:
         self._save_dataset("train")
         self._save_dataset("val")
         self._save_dataset("test")
+
+
+    def get_output_dir(self, output_dir):
+        time_stamp = f"{self._time_stamp.year}_{self._time_stamp.month}_{self._time_stamp.day}_{self._time_stamp.hour}_{self._time_stamp.minute}"
+        if output_dir is None:
+            return os.path.join(self._directory, "Output", time_stamp)
+        else:
+            return os.path.join(output_dir, self._directory, time_stamp)
 
     def _map_img_dir(self, x):
         return f"{self._directory}/lines/{x}.jpg"
