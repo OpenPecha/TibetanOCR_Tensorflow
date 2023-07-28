@@ -89,8 +89,11 @@ def read_data2(
         if min_label_length < len(label) < max_label_length:
             label = converter.toWylie(label)
             label = post_process_wylie(label)
-            labels.append(label)
-            images.append(image_path)
+
+            # filter everything that was not converted by pyewts or replaced by post-processing
+            if "\\u" not in label:
+                labels.append(label)
+                images.append(image_path)
 
     return images, labels
 
