@@ -166,11 +166,13 @@ cython_debug/
 
 # exlude data dir
 Data/
+Models/
+KerasModel/
 
 # exclude Checkpoints dir
 Checkpoints/
 
 # exlclude PyCharm project dir
 .idea/
-
+Debug.ipynb
 .DS_Store
