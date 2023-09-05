@@ -383,6 +383,7 @@ class OCRTrainer:
 
         network_config = {
             "model": self.model_savepath,
+            "architecture": self.architecture,
             "input_width": self.train_loader.img_width,
             "input_height": self.train_loader.img_height,
             "charset": _charset,
@@ -391,7 +392,7 @@ class OCRTrainer:
         out_file = os.path.join(self.dataset.output_dir, "model_config.json")
         json_out = json.dumps(network_config, ensure_ascii=False, indent=2)
 
-        with open(out_file, "w") as f:
+        with open(out_file, "w", encoding="UTF-8") as f:
             f.write(json_out)
 
         logging.info(f"Saved model config to: {out_file}")
@@ -436,7 +437,7 @@ class OCRTrainer:
         keep_layers: The number of layers from the top/end of the network that remain unfreezed. This value depends by and large on the architecture.
         freeze_layers: whether or not to freeze the specified layer range
         """
-
+        logging.info(f"Loading weights: {weights_file}")
         self._load_weights(weights_file)
 
         if freeze_layers:

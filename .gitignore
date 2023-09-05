@@ -166,6 +166,8 @@ cython_debug/
 
 # exlude data dir
 Data/
+Models/
+KerasModel/
 
 # exclude Checkpoints dir
 Checkpoints/

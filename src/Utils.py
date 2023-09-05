@@ -12,6 +12,9 @@ def get_basename(x):
 
 
 def shuffle_data(images: list, labels: list) -> tuple[list, list]:
+    seed = random.randint(1, 100)
+    random.seed(seed)
+
     c = list(zip(images, labels))
     random.shuffle(c)
     a, b = zip(*c)
@@ -58,7 +61,7 @@ def post_process_wylie(l):
     l = l.replace("\\u0f12", "ü")
     l = l.replace("_", " ")
     l = l.replace("  ", " ")
-
+    l = l.replace(" ", "§")
     return l
 
 
@@ -89,8 +92,11 @@ def read_data2(
         if min_label_length < len(label) < max_label_length:
             label = converter.toWylie(label)
             label = post_process_wylie(label)
-            labels.append(label)
-            images.append(image_path)
+
+            # filter everything that was not converted by pyewts or replaced by post-processing
+            if "\\u" not in label:
+                labels.append(label)
+                images.append(image_path)
 
     return images, labels
 
