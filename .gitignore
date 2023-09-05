@@ -169,8 +169,11 @@ Data/
 
 # exclude Checkpoints dir
 Checkpoints/
+KerasModel/
+Models/
 
 # exlclude PyCharm project dir
 .idea/
 
 .DS_Store
+Debug.ipynb
