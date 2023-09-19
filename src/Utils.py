@@ -35,7 +35,7 @@ def validate_data(images_paths: list[str], label_paths: list[str]):
     return list(set(image_list) & set(transcriptions_list))
 
 
-def clean_unicode_label(l, full_bracket_removal: bool = False):
+def clean_unicode_label(l, full_bracket_removal: bool = True):
     """
     Some preliminary clean-up rules for the Unicode text.
     - Note: () are just removed. This was valid in case of the Lhasa Kanjur.
@@ -45,6 +45,7 @@ def clean_unicode_label(l, full_bracket_removal: bool = False):
     """
 
     l = re.sub("[\uf8f0]", " ", l)
+    l = re.sub("[\xa0]", "", l)
     l = re.sub("[༌]", "་", l)  # replace triangle tsheg with regular
 
     if full_bracket_removal:
@@ -62,6 +63,8 @@ def post_process_wylie(l):
     l = l.replace("_", " ")
     l = l.replace("  ", " ")
     l = l.replace(" ", "§")
+    l = re.sub("[\[(].*?[\])]", "", l)
+
     return l
 
 
