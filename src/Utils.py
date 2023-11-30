@@ -1,5 +1,6 @@
 import os
 import re
+import cv2
 import random
 import numpy as np
 import tensorflow as tf
@@ -54,24 +55,31 @@ def clean_unicode_label(l, full_bracket_removal: bool = True):
         l = re.sub("[()]", "", l)
     return l
 
+def preprocess_wylie(l: str):
+    l = l.replace("/ /", "/_/")
+    l = l.replace("/ ", "/")
 
-def post_process_wylie(l):
+    return l
+
+def post_process_wylie(l: str):
     l = l.replace("\\u0f85", "&")
     l = l.replace("\\u0f09", "ä")
     l = l.replace("\\u0f13", "ö")
     l = l.replace("\\u0f12", "ü")
-    l = l.replace("_", " ")
     l = l.replace("  ", " ")
+    l = l.replace("_", "")
     l = l.replace(" ", "§")
+    
     l = re.sub("[\[(].*?[\])]", "", l)
 
     return l
 
 
 def read_data2(
-    image_list,
+    image_list: list,
     label_list: list,
     converter,
+    convert2wylie: bool,
     min_label_length: int = 30,
     max_label_length: int = 240,
 ) -> tuple[list[str], list[str]]:
@@ -93,7 +101,11 @@ def read_data2(
         label = clean_unicode_label(label)
 
         if min_label_length < len(label) < max_label_length:
-            label = converter.toWylie(label)
+            
+            if convert2wylie == True and converter is not None:
+                print("converting to wylie..")
+                label = converter.toWylie(label)
+            label = preprocess_wylie(label)
             label = post_process_wylie(label)
 
             # filter everything that was not converted by pyewts or replaced by post-processing
@@ -134,6 +146,33 @@ def get_charset(characters: str):
     characters.insert(0, "[UNK]")
 
     return characters
+
+
+def read_label(label_file: str) -> str:
+    f = open(label_file, "r", encoding="utf-8")
+
+    return f.readline()
+
+def read_image(image_path: str, binarize: bool = False):
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    if binarize:
+        clahe = cv2.createCLAHE(clipLimit=0.8, tileGridSize=(24,24))
+        image = clahe.apply(image)
+        image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 13, 11)
+    return image
+
+def prepare_image(image: np.array, input_height: int = 80, input_width: int = 2000):
+    tf_img = tf.expand_dims(image, axis=-1)
+
+    tf_img = tf.image.resize_with_pad(tf_img, input_height, input_width)
+    tf_img = tf.transpose(tf_img, perm=[1, 0, 2])
+    tf_img = tf_img / 255.0
+    
+    #tf_img = tf.expand_dims(tf_img, axis=0)
+
+    return tf_img
 
 
 class ImageReader:

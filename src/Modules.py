@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 from glob import glob
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 from natsort import natsorted
 
@@ -42,7 +42,10 @@ class OCRDataset:
         directory: str,
         train_test_split: float = 0.8,
         batch_size: int = 32,
-        charset: Optional[List[str]] = None,
+        min_label_length: int = 30,
+        max_label_length: int = 240,
+        convert2wylie: bool = True,
+        charset: Optional[list[str]] = None,
         output_dir: Optional[str] = None
     ) -> None:
         self._directory = directory
@@ -54,6 +57,9 @@ class OCRDataset:
         self._charset = charset
         self._converter = pyewts.pyewts()
         self.batch_size = batch_size
+        self.min_label_length = min_label_length, 
+        self.max_label_length = max_label_length,
+        self._convert2wylie = convert2wylie,
         self._train_test_split = train_test_split
         self._time_stamp = datetime.now()
         self.output_dir = self.get_output_dir(output_dir)
@@ -67,13 +73,23 @@ class OCRDataset:
         ds_images = natsorted(glob(f"{self._directory}/lines/*.jpg"))
         ds_labels = natsorted(glob(f"{self._directory}/transcriptions/*.txt"))
         logging.info(f"Total Images: {len(ds_images)}, Total Labels: {len(ds_labels)}")
+        logging.info(f"Max label length: {self.max_label_length}")
+        logging.info(f"Min label length: {self.min_label_length}")
 
+        if type(self.min_label_length) == tuple:
+            print("again wtf, why is Python turning this into a Tuple?!")
+            self.min_label_length = self.min_label_length[0]
+
+        if type(self.max_label_length) == tuple:
+            print("again wtf, why is Python turning this into a Tuple?!")
+            self.max_label_length = self.max_label_length[0]
+        
         common_list = validate_data(ds_images, ds_labels)
 
         images = list(map(self._map_img_dir, common_list))
         labels = list(map(self._map_label_dir, common_list))
 
-        images, labels = read_data2(images, labels, self._converter)
+        images, labels = read_data2(images, labels, min_label_length=self.min_label_length, max_label_length=self.max_label_length, converter=self._converter, convert2wylie=self._convert2wylie)
 
         self._ds_images, self._ds_labels = shuffle_data(images, labels)
 
@@ -84,6 +100,8 @@ class OCRDataset:
         logging.info(f"Train Images: {len(self._train_idx)}")
         logging.info(f"Validation Images: {len(self._val_idx)}")
         logging.info(f"Test Images: {len(self._test_idx)}")
+
+
 
         if self._charset is None:
             self.build_charset()
