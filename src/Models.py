@@ -28,7 +28,7 @@ from keras.layers import (
     RandomRotation,
 )
 
-from keras.optimizers import Adam, RMSprop
+from keras.optimizers import Adam, RMSprop, Lion
 
 
 # optional: define a stack of augmentations
@@ -189,6 +189,8 @@ def Easter2(
         optimizer = Adam(learning_rate=learning_rate)
     elif optimizer == "RMSProp":
         optimizer = RMSprop(learning_rate=learning_rate, centered=True)
+    elif optimizer == "Lion":
+        optimizer = Lion(learning_rate=learning_rate)
     else:
         logging.info(f"setting optimzer to default: Adam")
         optimizer = Adam(learning_rate=learning_rate)

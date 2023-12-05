@@ -17,7 +17,7 @@ from keras.callbacks import (
     EarlyStopping,
     LearningRateScheduler,
 )
-from keras.utils.data_utils import Sequence
+from keras.utils import Sequence
 from src.Models import Easter2
 from src.Utils import (
     shuffle_data,
@@ -43,7 +43,7 @@ class OCRDataset:
         train_test_split: float = 0.8,
         batch_size: int = 32,
         min_label_length: int = 30,
-        max_label_length: int = 240,
+        max_label_length: int = 320,
         convert2wylie: bool = True,
         charset: Optional[list[str]] = None,
         output_dir: Optional[str] = None
@@ -57,7 +57,7 @@ class OCRDataset:
         self._charset = charset
         self._converter = pyewts.pyewts()
         self.batch_size = batch_size
-        self.min_label_length = min_label_length 
+        self.min_label_length = min_label_length
         self.max_label_length = max_label_length
         self._convert2wylie = convert2wylie
         self._train_test_split = train_test_split
@@ -330,8 +330,10 @@ class OCRTrainer:
         dataset: OCRDataset,
         architecture: str = "easter2",
         model_name: str = "model",
+        optimizer: str = "Adam"
     ) -> None:
         self.architecture = architecture
+        self.optimizer = optimizer
         self.dataset = dataset
         self.train_images, self.train_labels = self.dataset.get_train_data()
         self.valid_images, self.valid_labels = self.dataset.get_val_data()
@@ -370,7 +372,7 @@ class OCRTrainer:
         ]
 
         tf.keras.backend.clear_session()
-        self.model = Easter2(classes=len(self.dataset.get_charset()))
+        self.model = Easter2(classes=len(self.dataset.get_charset()), optimizer=self.optimizer)
 
         self._save_model_config()
 
@@ -402,6 +404,7 @@ class OCRTrainer:
         network_config = {
             "model": self.model_savepath,
             "architecture": self.architecture,
+            "optimizer": self.optimizer,
             "input_width": self.train_loader.img_width,
             "input_height": self.train_loader.img_height,
             "charset": _charset,
