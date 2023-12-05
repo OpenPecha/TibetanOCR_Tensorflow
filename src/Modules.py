@@ -57,9 +57,9 @@ class OCRDataset:
         self._charset = charset
         self._converter = pyewts.pyewts()
         self.batch_size = batch_size
-        self.min_label_length = min_label_length, 
-        self.max_label_length = max_label_length,
-        self._convert2wylie = convert2wylie,
+        self.min_label_length = min_label_length 
+        self.max_label_length = max_label_length
+        self._convert2wylie = convert2wylie
         self._train_test_split = train_test_split
         self._time_stamp = datetime.now()
         self.output_dir = self.get_output_dir(output_dir)
